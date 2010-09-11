@@ -54,6 +54,8 @@ dbus_type_mapping = {
     'i' : 'gint',
     # intero unsigned
     'u' : 'guint',
+    # byte unsigned
+    'y' : 'guint8',
     # variant (GValue)
     'v' : 'GValue',
     # vettore: mappa o array
@@ -72,6 +74,8 @@ dbus_type_marshal = {
     'i' : 'int',
     # intero unsigned
     'u' : 'uint',
+    # byte unsigned
+    'y' : 'byte',
     # variant
     'v' : 'variant',
     # map

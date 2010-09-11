@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/">
+  <errordomain name="org.freesmartphone.Device.Audio" prefix="DEVICE_AUDIO">
+    <error name="UnknownFormat"/>
+    <error name="PlayerError"/>
+    <error name="NotPlaying"/>
+    <error name="AlreadyPlaying"/>
+    <error name="ScenarioInvalid"/>
+    <error name="ScenarioStackUnderflow"/>
+    <error name="DeviceFailed"/>
+  </errordomain>
+</node>
