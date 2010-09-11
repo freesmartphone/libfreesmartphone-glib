@@ -1,0 +1,15 @@
+#dbus_type_string_variant_hashtable
+VOID:INT,STRING,BOXED
+VOID:UINT,BOOLEAN,STRING
+VOID:INT
+VOID:STRING,STRING
+VOID:STRING,STRING,STRING
+#dbus_type_string_variant_hashtable
+VOID:BOXED
+#dbus_type_string_variant_hashtable
+VOID:STRING,BOOLEAN,BOXED
+VOID:STRING,BOOLEAN
+VOID:STRING,STRING,INT
+VOID:STRING,BOXED
+#dbus_type_string_variant_hashtable
+VOID:STRING,STRING,BOXED

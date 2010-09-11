@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/">
+  <interface name="org.freesmartphone.GSM.Network">
+    <proxy type="static" path="/org/freesmartphone/GSM/Device"/>
+    <method name="Register">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="Unregister">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="GetStatus">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="a{sv}" name="status" direction="out"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <signal name="Status">
+      <arg type="a{sv}" name="status"/>
+    </signal>
+    <method name="GetSignalStrength">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="i" name="signal_strength" direction="out"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <signal name="SignalStrength">
+      <arg type="i" name="signal_strength"/>
+    </signal>
+    <method name="GetTimeReport">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="i" name="time" direction="out"/>
+      <arg type="i" name="timestamp" direction="out"/>
+      <arg type="i" name="zone" direction="out"/>
+      <arg type="i" name="zonestamp" direction="out"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <signal name="TimeReport">
+      <arg type="i" name="time"/>
+      <arg type="i" name="zone"/>
+    </signal>
+    <method name="ListProviders">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="a(sssss)" name="providers" direction="out" fso:type="org.freesmartphone.GSM.NetworkProvider"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="RegisterWithProvider">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="operator_code" direction="in"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="GetCallForwarding">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="reason" direction="in"/>
+      <arg type="a{sv}" name="status" direction="out"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="EnableCallForwarding">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="reason" direction="in"/>
+      <arg type="s" name="class" direction="in"/>
+      <arg type="s" name="number" direction="in"/>
+      <arg type="i" name="timeout" direction="in"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="DisableCallForwarding">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="reason" direction="in"/>
+      <arg type="s" name="class" direction="in"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="SetCallingIdentification">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="status" fso:type="org.freesmartphone.GSM.CallingIdentificationStatus" direction="in"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="GetCallingIdentification">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="status" fso:type="org.freesmartphone.GSM.CallingIdentificationStatus" direction="out"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <method name="SendUssdRequest">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="request" direction="in"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone.GSM"/>
+      <fso:throws xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="org.freesmartphone"/>
+    </method>
+    <signal name="IncomingUssd">
+      <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="mode" fso:type="org.freesmartphone.GSM.UssdStatus"/>
+      <arg type="s" name="message"/>
+    </signal>
+    <signal name="CipherStatus">
+      <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="telephony" fso:type="org.freesmartphone.GSM.CipherStatus"/>
+      <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="pdp" fso:type="org.freesmartphone.GSM.CipherStatus"/>
+    </signal>
+  </interface>
+  <fso:struct xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" name="org.freesmartphone.GSM.NetworkProvider"
+    interface="org.freesmartphone.GSM.Network">
+    <fso:field name="status" type="s"/>
+    <fso:field name="shortname" type="s"/>
+    <fso:field name="longname" type="s"/>
+    <fso:field name="mccmnc" type="s"/>
+    <fso:field name="act" type="s"/>
+  </fso:struct>
+  <fso:enumeration xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="org.freesmartphone.GSM.UssdStatus"
+    interface="org.freesmartphone.GSM.Network">
+    <fso:member name="completed" value="completed"/>
+    <fso:member name="useraction" value="useraction"/>
+    <fso:member name="terminated" value="terminated"/>
+    <fso:member name="localclient" value="localclient"/>
+    <fso:member name="unsupported" value="unsupported"/>
+    <fso:member name="timeout" value="timeout"/>
+  </fso:enumeration>
+  <fso:enumeration xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="org.freesmartphone.GSM.CipherStatus"
+    interface="org.freesmartphone.GSM.Network">
+    <fso:member name="disabled" value="disabled"/>
+    <fso:member name="enabled" value="enabled"/>
+    <fso:member name="unknown" value="unknown"/>
+  </fso:enumeration>
+  <fso:enumeration xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="org.freesmartphone.GSM.CallingIdentificationStatus"
+    interface="org.freesmartphone.GSM.Network">
+    <fso:member name="network" value="network"/>
+    <fso:member name="off" value="off"/>
+    <fso:member name="on" value="on"/>
+  </fso:enumeration>
+</node>
