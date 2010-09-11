@@ -1,20 +1,22 @@
-SUBDIRS = ogsmd
+SUBDIRS = ogsmd ousaged
 
 dbus_archives = \
-	ogsmd/libogsmd.a
+	ogsmd/libogsmd.la \
+	ousaged/libousaged.la
 
 AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
 	      -DPKGDATADIR=\"$(pkgdatadir)\" \
 	      -DG_LOG_DOMAIN=\"libfreesmartphone-glib\"
 
 AM_CFLAGS = -Wall -Wextra -Werror @DBUS_CFLAGS@
-AM_LDFLAGS = @DBUS_LIBS@ $(dbus_archives)
+AM_LDFLAGS = @DBUS_LIBS@
 
 xmldir = $(top_srcdir)/xml
 
 lib_LTLIBRARIES = libfreesmartphone-glib.la
 
 libfreesmartphone_glib_la_LDFLAGS = $(all_libraries) -version-info 1:0:0 -no-undefined
+libfreesmartphone_glib_la_LIBADD = $(dbus_archives)
 
 dbus-marshal.h: dbus-marshal.list
 	( @GLIB_GENMARSHAL@ $< --prefix=freesmartphone_glib_marshal --header > dbus-marshal.tmp \

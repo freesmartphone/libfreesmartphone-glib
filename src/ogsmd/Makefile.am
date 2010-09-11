@@ -7,7 +7,20 @@ AM_LDFLAGS = @DBUS_LIBS@
 
 xmldir = $(top_srcdir)/xml
 
-noinst_LIBRARIES = libogsmd.a
+noinst_LTLIBRARIES = libogsmd.la
+
+BUILT_SOURCES = \
+	$(DBUS_OGSMD_SOURCES) \
+	dbus/call.xml \
+	dbus/call.h \
+	dbus/device.xml \
+	dbus/device.h \
+	dbus/network.xml \
+	dbus/network.h \
+	dbus/sim.xml \
+	dbus/sim.h \
+	dbus/sms.xml \
+	dbus/sms.h
 
 DBUS_OGSMD_SOURCES = \
 	call.c \
@@ -22,7 +35,7 @@ DBUS_OGSMD_SOURCES = \
 	sms.c \
 	sms.h
 
-$(DBUS_OGSMD_SOURCES): Makefile
+$(BUILT_SOURCES): Makefile
 	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib ogsmd org.freesmartphone.ogsmd \
 	$(xmldir)/org.freesmartphone.GSM.Device.xml \
 	$(xmldir)/org.freesmartphone.GSM.Call.xml \
@@ -30,7 +43,7 @@ $(DBUS_OGSMD_SOURCES): Makefile
 	$(xmldir)/org.freesmartphone.GSM.SIM.xml \
 	$(xmldir)/org.freesmartphone.GSM.SMS.xml
 
-libogsmd_a_SOURCES = \
+libogsmd_la_SOURCES = \
 	$(DBUS_OGSMD_SOURCES)
 
 libfreesmartphone_glib_HEADERS = \
@@ -45,7 +58,7 @@ libfreesmartphone_glibdir = $(includedir)/freesmartphone-glib/ogsmd
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \
-	$(RM) -fR dbus
+	dbus
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

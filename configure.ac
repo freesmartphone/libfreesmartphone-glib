@@ -27,5 +27,6 @@ AC_OUTPUT([
 Makefile
 src/Makefile
 src/ogsmd/Makefile
+src/ousaged/Makefile
 libfreesmartphone-glib.pc
 ])
