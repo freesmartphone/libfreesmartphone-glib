@@ -18,7 +18,11 @@ BUILT_SOURCES = \
 	dbus/input.xml \
 	dbus/input.h \
 	dbus/vibrator.xml \
-	dbus/vibrator.h
+	dbus/vibrator.h \
+	dbus/led.xml \
+	dbus/led.h \
+	dbus/orientation.xml \
+	dbus/orientation.h
 
 DBUS_ODEVICED_SOURCES = \
 	display.c \
@@ -29,6 +33,10 @@ DBUS_ODEVICED_SOURCES = \
 	input.h \
 	vibrator.c \
 	vibrator.h \
+	led.c \
+	led.h \
+	orientation.c \
+	orientation.h \
 	dbus.h
 
 $(BUILT_SOURCES): Makefile
@@ -36,7 +44,9 @@ $(BUILT_SOURCES): Makefile
 	$(xmldir)/org.freesmartphone.Device.Display.xml \
 	$(xmldir)/org.freesmartphone.Device.IdleNotifier.xml \
 	$(xmldir)/org.freesmartphone.Device.Input.xml \
-	$(xmldir)/org.freesmartphone.Device.Vibrator.xml
+	$(xmldir)/org.freesmartphone.Device.Vibrator.xml \
+	$(xmldir)/org.freesmartphone.Device.LED.xml
+	$(xmldir)/org.freesmartphone.Device.Orientation.xml
 
 libodeviced_la_SOURCES = \
 	$(DBUS_ODEVICED_SOURCES)
@@ -46,6 +56,8 @@ libfreesmartphone_glib_HEADERS = \
 	idlenotifier.h \
 	input.h \
 	vibrator.h \
+	led.h \
+	orientation.h \
 	dbus.h
 
 libfreesmartphone_glibdir = $(includedir)/freesmartphone-glib/odeviced
