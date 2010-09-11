@@ -57,8 +57,10 @@ libfreesmartphone_glib_HEADERS = \
 libfreesmartphone_glibdir = $(includedir)/freesmartphone-glib/ogsmd
 
 CLEANFILES = \
-	$(BUILT_SOURCES) \
-	dbus
+	$(BUILT_SOURCES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
+clean-local:
+	$(RM) -R dbus

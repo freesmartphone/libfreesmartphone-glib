@@ -28,5 +28,7 @@ Makefile
 src/Makefile
 src/ogsmd/Makefile
 src/ousaged/Makefile
+src/opimd/Makefile
+src/odeviced/Makefile
 libfreesmartphone-glib.pc
 ])
