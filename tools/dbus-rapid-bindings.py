@@ -214,36 +214,45 @@ class DBusCodeGen:
         self.xmltree = ElementTree()
         self.uscore_fprefix = self.filename_prefix.replace('-', '_')
 
-    def preformat_arguments(self, args, use_special = False):
-        # formatta argomenti di input
+    def preformat_arguments(self, args, use_special = False, in_args = False):
+        '''Formatta una lista di argomenti.
+        use_special: indica se usare i convertitori
+        in_args: indica se stiamo processando argomenti di input
+        '''
         fmt_args = []
         fmt_args_expl = []
         fmt_args_impl = []
         for arg in args:
             parg = dict(arg)
+            parg['fname'] = parg['name']
             if use_special and arg['converter'] is not None:
                 conv = self.converters[parg['converter']]
                 type_map = conv['out_type'][1]
 
                 parg['type'] = type_map
+                func_call = 'function' if not in_args else 'function_rev'
+
                 if conv['function_call']:
                     func_str = conv['function_call']
                 else:
-                    func_str = conv['function']
+                    func_str = conv[func_call]
 
                 try:
-                    parg['name'] = func_str % (parg['name'])
+                    parg['fname'] = func_str % (parg['name'])
                 except:
-                    parg['name'] = func_str
+                    parg['fname'] = func_str
+
+                if not in_args:
+                    parg['name'] = parg['fname']
 
             fmt_args.append('%s %s' % (parg['type'], parg['name']))
-            fmt_args_expl.append(parg['name'])
+            fmt_args_expl.append(parg['fname'])
             fmt_args_impl.append(parg['type'])
 
         return fmt_args, fmt_args_expl, fmt_args_impl
 
-    def format_arguments(self, args, use_special = False):
-        fmt_args, fmt_args_expl, fmt_args_impl = self.preformat_arguments(args, use_special)
+    def format_arguments(self, args, use_special = False, in_args = False):
+        fmt_args, fmt_args_expl, fmt_args_impl = self.preformat_arguments(args, use_special, in_args)
 
         fmt_args = ', '.join(fmt_args)
         fmt_args_expl = ', '.join(fmt_args_expl)
@@ -748,7 +757,9 @@ typedef enum {
 
         enum_hdr += """
 int %s_handle_%s(const %s value);
-""" % (self.function_prefix, enum_defname.lower(), handler_args)
+const %s %s_handle_%s_reverse(int value);
+""" % (self.function_prefix, enum_defname.lower(), handler_args,
+        handler_args, self.function_prefix, enum_defname.lower())
 
         if conv_type == 's':
             condition = '!strcmp(value, "%s")'
@@ -775,10 +786,29 @@ int %s_handle_%s(const %s value)
 }
 """
 
+        enum_src += """
+const %s %s_handle_%s_reverse(int value)
+{
+    switch (value) {
+""" % (handler_args, self.function_prefix, enum_defname.lower())
+
+        for name, value in enum_values.items():
+            enum_src += """        case %s:
+            return "%s";
+""" % (name, value)
+
+        enum_src += """
+        default:
+            return "unknown";
+    }
+}
+"""
+
         return {
             'name' : enum_name,
             'list' : enum_list,
             'function' : '%s_handle_%s(%%s)' % (self.function_prefix, enum_defname.lower()),
+            'function_rev' : '%s_handle_%s_reverse(%%s)' % (self.function_prefix, enum_defname.lower()),
             'function_call' : None,
             'in_type' : (conv_type, handler_args),
             'out_type' : ('i', 'gint'),
@@ -1005,10 +1035,13 @@ static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer 
 
         # formatta argomenti di input
         fmt_in_args, fmt_in_args_expl, fmt_in_args_impl = self.format_arguments(in_args)
+        fmt_in_args_sp, fmt_in_args_sp_expl, fmt_in_args_sp_impl = self.format_arguments(in_args, True, True)
 
         if len(in_args) > 0:
             fmt_in_args += ', '
             fmt_in_args_expl += ', '
+            fmt_in_args_sp += ', '
+            fmt_in_args_sp_expl += ', '
 
         # formatta argomenti di output per il callback
         fmt_out_args, fmt_out_args_expl, fmt_out_args_impl = self.format_arguments(out_args)
@@ -1040,15 +1073,15 @@ void %s_%s_%s(%s%svoid (*callback)(GError*, %sgpointer), gpointer userdata)
     %s_%s_async(%s, %s%s_%s_%s_callback, __data);
 }
 """ % (self.function_prefix, self.methods_prefix, fmt_name, construct_args,
-        fmt_in_args, fmt_out_args_sp_impl, construct_decl, self.function_prefix,
+        fmt_in_args_sp, fmt_out_args_sp_impl, construct_decl, self.function_prefix,
         self.methods_prefix, construct_args_expl,
-        async_method_prefix, fmt_name, self.proxy_name, fmt_in_args_expl,
+        async_method_prefix, fmt_name, self.proxy_name, fmt_in_args_sp_expl,
         self.function_prefix, self.methods_prefix, fmt_name)
 
         print >>hdrfile, """
 void %s_%s_%s(%s%svoid (*callback)(GError*, %sgpointer), gpointer userdata);""" % (
         self.function_prefix, self.methods_prefix, fmt_name, construct_args,
-        fmt_in_args, fmt_out_args_sp_impl)
+        fmt_in_args_sp, fmt_out_args_sp_impl)
 
     def write_signal_callback(self, f, c, hdrfile, srcfile, in_args):
         fmt_args, fmt_args_expl, fmt_args_impl = self.format_arguments(in_args)
