@@ -161,9 +161,11 @@ def parse_arguments(c):
                             skip = arg_type.find(type2, i + 1) - i
                             type_map = type_map['('][0]
 
+                const_add = 'const ' if direction == 'in' else ''
+
                 arg_def = {
                     'name' : name,
-                    'type' : '%s%s' % (type_map, star),
+                    'type' : '%s%s%s' % (const_add, type_map, star),
                     'complex' : complex_struct,
                     'converter' : special_type
                 }
