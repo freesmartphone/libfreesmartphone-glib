@@ -161,7 +161,10 @@ def parse_arguments(c):
                             skip = arg_type.find(type2, i + 1) - i
                             type_map = type_map['('][0]
 
-                const_add = 'const ' if direction == 'in' else ''
+                if direction == 'in' or (direction is None and default_direction_in) and arg_type[i] == 's':
+                    const_add = 'const '
+                else:
+                    const_add = ''
 
                 arg_def = {
                     'name' : name,
@@ -170,7 +173,7 @@ def parse_arguments(c):
                     'converter' : special_type
                 }
 
-                if direction == 'in' or direction is None and default_direction_in:
+                if direction == 'in' or (direction is None and default_direction_in):
                     in_args.append(arg_def)
                 else:
                     out_args.append(arg_def)
@@ -744,7 +747,7 @@ typedef enum {
         handler_args = dbus_type_mapping[conv_type]
 
         enum_hdr += """
-int %s_handle_%s(%s value);
+int %s_handle_%s(const %s value);
 """ % (self.function_prefix, enum_defname.lower(), handler_args)
 
         if conv_type == 's':
@@ -753,7 +756,7 @@ int %s_handle_%s(%s value);
             raise RuntimeError('Unknown converter argument type \'%s\'' % (conv_type))
 
         enum_src = """
-int %s_handle_%s(%s value)
+int %s_handle_%s(const %s value)
 {""" % (self.function_prefix, enum_defname.lower(), handler_args)
 
         i_else = False
