@@ -543,6 +543,7 @@ GError* dbus_handle_remote_error(GError* dbus_error)
 
 """ % (self.get_filename('', 'errors', '.h'))
 
+        first_file = False
         for xmlfile in self.xmlfiles:
             self.root = self.xmltree.parse(xmlfile)
             self.xmlfile = xmlfile
@@ -550,15 +551,20 @@ GError* dbus_handle_remote_error(GError* dbus_error)
             self.insert_error_code(srcfile, hdrfile,
                 self.root.getiterator('errordomain'))
 
+            if first_file:
+                print >>srcfile, """    else"""
+            else:
+                first_file = True
+
         print >>hdrfile, "#endif"
 
-        print >>srcfile, """    else {
+        print >>srcfile, """    %s {
         error = %s_DBUS_ERROR_UNKNOWN;
         quark = %s_DBUS_ERROR;
     }
 
     return g_error_new(quark, error, "%%s", error_name);
-}""" % (def_name_prefix, def_name_prefix)
+}""" % ("else" if not first_file else "", def_name_prefix, def_name_prefix)
 
         srcfile.close()
         hdrfile.close()
