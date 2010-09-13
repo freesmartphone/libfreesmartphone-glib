@@ -506,9 +506,10 @@ GError* dbus_handle_remote_error(GError* dbus_error);
 enum {
     %s_DBUS_ERROR_SERVICE_NOT_AVAILABLE = 0,
     %s_DBUS_ERROR_NO_REPLY,
+    %s_DBUS_ERROR_UNKNOWN,
 };
 """ % (def_name, def_name, def_name_prefix, def_name_prefix, def_name_prefix,
-        def_name_prefix, def_name_prefix)
+        def_name_prefix, def_name_prefix, def_name_prefix)
 
         print >>srcfile, """
 #include <string.h>
@@ -533,10 +534,13 @@ GError* dbus_handle_remote_error(GError* dbus_error)
 
         print >>hdrfile, "#endif"
 
-        print >>srcfile, """
-    return g_error_new(quark, error, "TODO %%s", error_name);
-}
-""" % ()
+        print >>srcfile, """    else {
+        error = %s_DBUS_ERROR_UNKNOWN;
+        quark = %s_DBUS_ERROR;
+    }
+
+    return g_error_new(quark, error, "%%s", error_name);
+}""" % (def_name_prefix, def_name_prefix)
 
         srcfile.close()
         hdrfile.close()
@@ -911,7 +915,7 @@ G_END_DECLS
         proxy_type = c.get('type')
         if proxy_type == 'static':
             params = "void"
-            proxy_decl = "DBusGProxy* %s;\n" % (self.proxy_name)
+            proxy_decl = "DBusGProxy* %s = NULL;\n" % (self.proxy_name)
             path_def = "%s_%s_BUS_PATH" % (self.function_prefix.upper(),
                 self.methods_prefix.upper())
             # path dbus
@@ -984,12 +988,12 @@ DBusGProxy* %s_%s_dbus_connect(%s)
         complex_args_decl = ""
         for arg in out_args:
             if arg['complex'] and (arg['type'].startswith('GPtrArray') or arg['type'].startswith('GHashTable')):
-                complex_args_free += "dbus_free_data(dbus_type_%s_%s_%s_%s(), %s);" % (
+                complex_args_free += "if (dbus_error == NULL) dbus_free_data(dbus_type_%s_%s_%s_%s(), %s);" % (
                     self.function_prefix, self.methods_prefix, fmt_name,
                     arg['name'], arg['name']);
 
                 if arg['converter'] is not None:
-                    complex_args_extra += "if (__struct_%s) g_ptr_array_free(__struct_%s, TRUE);\n" % (arg['name'], arg['name'])
+                    complex_args_extra += "if (__struct_%s != NULL) g_ptr_array_free(__struct_%s, TRUE);\n" % (arg['name'], arg['name'])
                     conv = self.converters[arg['converter']]
                     type_map = conv['out_type'][1]
                     try:
