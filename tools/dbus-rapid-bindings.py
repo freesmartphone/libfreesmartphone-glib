@@ -85,6 +85,23 @@ dbus_type_marshal = {
     }
 }
 
+dbus_marshal_signatures = {
+    # stringa
+    's' : 'STRING',
+    # boolean
+    'b' : 'BOOLEAN',
+    # intero
+    'i' : 'INT',
+    # intero unsigned
+    'u' : 'UINT',
+    # byte unsigned
+    'y' : 'UCHAR',
+    # variant
+    'v' : 'POINTER',
+    # map
+    'a' : 'BOXED'
+}
+
 def cname_from_dbus_name(name):
     '''Converte un nome di metodo D-Bus in nome di metodo C.
     Procedura di conversione:
@@ -168,6 +185,7 @@ def parse_arguments(c):
 
                 arg_def = {
                     'name' : name,
+                    'signature' : arg_type,
                     'type' : '%s%s%s' % (const_add, type_map, star),
                     'complex' : complex_struct,
                     'converter' : special_type
@@ -1033,6 +1051,59 @@ static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer 
         fmt_out_args_sp_impl, fmt_out_args_sp_expl,
         complex_args_extra, complex_args_free)
 
+    def load_marshal_list(self):
+        # FIXME hardcoded for now, sorry :(
+        mlist = open('../dbus-marshal.list', 'r')
+        comment = None
+        flist = {}
+
+        for l in mlist:
+            l = l.strip()
+            if l[0] == '#':
+                comment = l[1:].split(',')
+                continue
+            if l[-1] == '\n':
+                l = l[:-1]
+
+            flist[l] = comment
+
+        return flist
+
+    def lookup_marshal_gtypes(self, in_args):
+        '''Genera una lista di tipi G_TYPE per gli argomenti in ingresso,
+        controllandone la corrispondenza con la lista dei marshallers.'''
+        marshal_list = self.load_marshal_list()
+        lookup = []
+
+        # prima di tutto genera la stringa del marshaller da recuperare
+        marshal_match = 'VOID:'
+        marshals = []
+        for arg in in_args:
+            marshals.append(dbus_marshal_signatures[arg['signature'][0]])
+
+        marshal_match += ','.join(marshals)
+        print "Looking for marshaller %s" % (marshal_match)
+
+        try:
+            boxed = marshal_list[marshal_match]
+        except KeyError:
+            # se siamo qua vuol dire che il marshaller non esiste o e' builtin,
+            # genera le normali stringhe
+            boxed = None
+
+        boxed_ind = 0
+        for arg in in_args:
+            gtype = dbus_marshal_signatures[arg['signature'][0]]
+            if gtype == 'BOXED' and boxed:
+                gtype = boxed[boxed_ind] + '()'
+                boxed_ind += 1
+            else:
+                gtype = 'G_TYPE_' + gtype
+
+            lookup.append(gtype)
+
+        return lookup
+
     def write_method_body(self, f, c, hdrfile, srcfile, in_args, out_args):
         async_method_prefix = cifname_from_dbus_ifname(f.get('name'))
         fmt_name = cname_from_dbus_name(c.get('name'))
@@ -1118,6 +1189,8 @@ static void %s_%s_%s_handler(DBusGProxy *proxy,
         ifname = '%s.%s' % (f.get('name'), c.get('name'))
         fmt_args, fmt_args_expl, fmt_args_impl = self.format_arguments(in_args)
         fmt_args_sp, fmt_args_sp_expl, fmt_args_sp_impl = self.format_arguments(in_args, True)
+        g_types = self.lookup_marshal_gtypes(in_args)
+        g_types = ', '.join(g_types)
 
         if len(in_args) > 0:
             fmt_args += ', '
@@ -1126,6 +1199,7 @@ static void %s_%s_%s_handler(DBusGProxy *proxy,
             fmt_args_sp += ', '
             fmt_args_sp_expl = ', ' + fmt_args_sp_expl
             fmt_args_sp_impl = ', ' + fmt_args_sp_impl
+            g_types += ', '
 
         if self.proxy_type == 'static':
             construct_decl = ''
@@ -1154,8 +1228,7 @@ gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer user
 
     if (!signal_added) {
         dbus_g_proxy_add_signal(%s,
-            "%s", G_TYPE_STRING, G_TYPE_STRING,
-            G_TYPE_INT, G_TYPE_INVALID);
+            "%s", %sG_TYPE_INVALID);
         signal_added = TRUE;
     }
 
@@ -1174,7 +1247,7 @@ gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer user
         construct_decl, 
         self.function_prefix, self.methods_prefix, construct_args_expl,
         self.proxy_name, c.get('name'),
-        # TODO parametri
+        g_types,
         self.proxy_name, c.get('name'),
         self.function_prefix, self.methods_prefix,
         cname_from_dbus_name(c.get('name')), ifname)
