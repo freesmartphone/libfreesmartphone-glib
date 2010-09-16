@@ -178,7 +178,8 @@ def parse_arguments(c):
                             skip = arg_type.find(type2, i + 1) - i
                             type_map = type_map['('][0]
 
-                if direction == 'in' or (direction is None and default_direction_in) and arg_type[i] == 's':
+                #if direction == 'in' or (direction is None and default_direction_in) and arg_type[i] == 's':
+                if arg_type[i] == 's':
                     const_add = 'const '
                 else:
                     const_add = ''
@@ -1151,12 +1152,13 @@ void %s_%s_%s(%s%svoid (*callback)(GError*, %sgpointer), gpointer userdata)
     callback_data_t *__data = g_malloc(sizeof(callback_data_t));
     __data->callback = callback;
     __data->userdata = userdata;
-    %s_%s_async(%s, %s%s_%s_%s_callback, __data);
+    %s_%s_async(%s, %s(%s_%s_reply) %s_%s_%s_callback, __data);
 }
 """ % (self.function_prefix, self.methods_prefix, fmt_name, construct_args,
         fmt_in_args_sp, fmt_out_args_sp_impl, construct_decl, self.function_prefix,
         self.methods_prefix, construct_args_expl,
-        async_method_prefix, fmt_name, self.proxy_name, fmt_in_args_sp_expl,
+        async_method_prefix, fmt_name, self.proxy_name,
+        fmt_in_args_sp_expl, async_method_prefix, fmt_name,
         self.function_prefix, self.methods_prefix, fmt_name)
 
         print >>hdrfile, """
