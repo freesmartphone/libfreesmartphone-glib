@@ -65,9 +65,11 @@ dbus_type_mapping = {
     }
 }
 
+# dbus type signature to marshal function string
 dbus_type_marshal = {
     # stringa
     's' : 'string',
+    'o' : 'string',
     # boolean
     'b' : 'boolean',
     # intero
@@ -85,9 +87,11 @@ dbus_type_marshal = {
     }
 }
 
+# dbus type signature to glib-genmarshal string
 dbus_marshal_signatures = {
     # stringa
     's' : 'STRING',
+    'o' : 'STRING',
     # boolean
     'b' : 'BOOLEAN',
     # intero
@@ -100,6 +104,25 @@ dbus_marshal_signatures = {
     'v' : 'POINTER',
     # map
     'a' : 'BOXED'
+}
+
+# dbus type signature to default argument value to pass to callbacks
+dbus_errors_default = {
+    # stringa
+    's' : 'NULL',
+    'o' : 'NULL',
+    # boolean
+    'b' : 'FALSE',
+    # intero
+    'i' : '0',
+    # intero unsigned
+    'u' : '0',
+    # byte unsigned
+    'y' : '0',
+    # variant
+    'v' : 'NULL',
+    # map
+    'a' : 'NULL'
 }
 
 def cname_from_dbus_name(name):
@@ -233,7 +256,7 @@ class DBusCodeGen:
         self.xmltree = ElementTree()
         self.uscore_fprefix = self.filename_prefix.replace('-', '_')
 
-    def preformat_arguments(self, args, use_special = False, in_args = False):
+    def preformat_arguments(self, args, use_special = False, in_args = False, error_usage = False):
         '''Formatta una lista di argomenti.
         use_special: indica se usare i convertitori
         in_args: indica se stiamo processando argomenti di input
@@ -264,14 +287,20 @@ class DBusCodeGen:
                 if not in_args:
                     parg['name'] = parg['fname']
 
+                if error_usage:
+                    arg['error_value'] = err_value = dbus_errors_default[conv['out_type'][0]]
+
+                    parg['fname'] = 'dbus_error == NULL ? %s : %s' % (
+                        parg['fname'], err_value)
+
             fmt_args.append('%s %s' % (parg['type'], parg['name']))
             fmt_args_expl.append(parg['fname'])
             fmt_args_impl.append(parg['type'])
 
         return fmt_args, fmt_args_expl, fmt_args_impl
 
-    def format_arguments(self, args, use_special = False, in_args = False):
-        fmt_args, fmt_args_expl, fmt_args_impl = self.preformat_arguments(args, use_special, in_args)
+    def format_arguments(self, args, use_special = False, in_args = False, error_usage = False):
+        fmt_args, fmt_args_expl, fmt_args_impl = self.preformat_arguments(args, use_special, in_args, error_usage)
 
         fmt_args = ', '.join(fmt_args)
         fmt_args_expl = ', '.join(fmt_args_expl)
@@ -998,6 +1027,7 @@ DBusGProxy* %s_%s_dbus_connect(%s)
 
         # formatta argomenti di output per il callback
         fmt_out_args, fmt_out_args_expl, fmt_out_args_impl = self.format_arguments(out_args)
+        fmt_out_args_err, fmt_out_args_err_expl, fmt_out_args_err_impl = self.format_arguments(out_args, True, False, True)
         fmt_out_args_sp, fmt_out_args_sp_expl, fmt_out_args_sp_impl = self.format_arguments(out_args, True)
 
         if len(out_args) > 0:
@@ -1007,6 +1037,7 @@ DBusGProxy* %s_%s_dbus_connect(%s)
             fmt_out_args_sp += ', '
             fmt_out_args_sp_expl += ', '
             fmt_out_args_sp_impl += ', '
+            fmt_out_args_err_expl += ', '
 
         complex_args_free = ""
         complex_args_extra = ""
@@ -1026,8 +1057,8 @@ DBusGProxy* %s_%s_dbus_connect(%s)
                     except:
                         arg_def = conv['function']
 
-                    complex_args_decl += "GPtrArray* __struct_%s = %s;\n" % (
-                        arg['name'], arg_def)
+                    complex_args_decl += "GPtrArray* __struct_%s = (dbus_error == NULL) ? %s : %s;\n" % (
+                        arg['name'], arg_def, arg['error_value'])
 
         print >>srcfile, """
 static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer userdata)
@@ -1055,7 +1086,8 @@ static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer 
 }
 """ % (self.function_prefix, self.methods_prefix, fmt_name,
         fmt_out_args, complex_args_decl,
-        fmt_out_args_sp_impl, fmt_out_args_sp_expl,
+        fmt_out_args_sp_impl, fmt_out_args_err_expl,
+        #fmt_out_args_sp_expl,
         complex_args_extra, complex_args_free)
 
     def load_marshal_list(self):
