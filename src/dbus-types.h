@@ -40,4 +40,15 @@ GType dbus_type_ogsmd_sms_retrieve_text_messages_messages(void);
 #define dbus_type_opimd_callquery_get_result_item dbus_type_string_variant_hashtable
 GType dbus_type_opimd_callquery_get_multiple_results_resultset(void);
 
+/* org.freesmartphone.PIM.ContactQuery */
+#define dbus_type_opimd_contactquery_get_result_item dbus_type_string_variant_hashtable
+#define dbus_type_opimd_contactquery_get_multiple_results_resultset dbus_type_opimd_callquery_get_multiple_results_resultset
+
+/* org.freesmartphone.PIM.Contact */
+#define dbus_type_opimd_contact_get_content_contact_data dbus_type_string_variant_hashtable
+#define dbus_type_opimd_contact_get_multiple_fields_field_data dbus_type_string_variant_hashtable
+
+/* org.freesmartphone.PIM.Fields */
+GType dbus_type_opimd_fields_list_fields_fields(void);
+
 #endif
