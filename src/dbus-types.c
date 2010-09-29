@@ -19,6 +19,15 @@ GType dbus_type_string_int_hashtable(void)
     return foo;
 }
 
+GType dbus_type_string_variant_hashtable_array(void)
+{
+    static GType foo = 0;
+    if (G_UNLIKELY(foo == 0))
+        foo = dbus_g_type_get_collection("GPtrArray",
+                dbus_type_string_variant_hashtable());
+    return foo;
+}
+
 /* org.freesmartphone.GSM.Call */
 
 GType dbus_type_ogsmd_call_list_calls_call_details(void)
@@ -95,17 +104,6 @@ GType dbus_type_ogsmd_sms_retrieve_text_messages_messages(void)
                 G_TYPE_STRING,
                 dbus_type_string_variant_hashtable(),
                 G_TYPE_INVALID));
-    return foo;
-}
-
-/* org.freesmartphone.PIM.CallQuery */
-
-GType dbus_type_opimd_callquery_get_multiple_results_resultset(void)
-{
-    static GType foo = 0;
-    if (G_UNLIKELY(foo == 0))
-        foo = dbus_g_type_get_collection("GPtrArray",
-                dbus_type_string_variant_hashtable());
     return foo;
 }
 

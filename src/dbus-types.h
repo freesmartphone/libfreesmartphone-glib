@@ -7,6 +7,7 @@
 
 GType dbus_type_string_variant_hashtable(void);
 GType dbus_type_string_int_hashtable(void);
+GType dbus_type_string_variant_hashtable_array(void);
 
 /* org.freesmartphone.GSM.Device */
 #define dbus_type_ogsmd_device_get_features_features dbus_type_string_variant_hashtable
@@ -38,11 +39,11 @@ GType dbus_type_ogsmd_sms_retrieve_text_messages_messages(void);
 
 /* org.freesmartphone.PIM.CallQuery */
 #define dbus_type_opimd_callquery_get_result_item dbus_type_string_variant_hashtable
-GType dbus_type_opimd_callquery_get_multiple_results_resultset(void);
+#define dbus_type_opimd_callquery_get_multiple_results_resultset dbus_type_string_variant_hashtable_array
 
 /* org.freesmartphone.PIM.ContactQuery */
 #define dbus_type_opimd_contactquery_get_result_item dbus_type_string_variant_hashtable
-#define dbus_type_opimd_contactquery_get_multiple_results_resultset dbus_type_opimd_callquery_get_multiple_results_resultset
+#define dbus_type_opimd_contactquery_get_multiple_results_resultset dbus_type_string_variant_hashtable_array
 
 /* org.freesmartphone.PIM.Contact */
 #define dbus_type_opimd_contact_get_content_contact_data dbus_type_string_variant_hashtable
@@ -50,5 +51,12 @@ GType dbus_type_opimd_callquery_get_multiple_results_resultset(void);
 
 /* org.freesmartphone.PIM.Fields */
 GType dbus_type_opimd_fields_list_fields_fields(void);
+
+/* org.freesmartphone.PIM.MessageQuery */
+#define dbus_type_opimd_messagequery_get_result_item dbus_type_string_variant_hashtable
+#define dbus_type_opimd_messagequery_get_multiple_results_resultset dbus_type_string_variant_hashtable_array
+
+/* org.freesmartphone.PIM.Message */
+#define dbus_type_opimd_message_get_content_content dbus_type_string_variant_hashtable
 
 #endif
