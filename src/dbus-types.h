@@ -58,5 +58,6 @@ GType dbus_type_opimd_fields_list_fields_fields(void);
 
 /* org.freesmartphone.PIM.Message */
 #define dbus_type_opimd_message_get_content_content dbus_type_string_variant_hashtable
+#define dbus_type_opimd_message_get_multiple_fields_field_data dbus_type_string_variant_hashtable
 
 #endif
