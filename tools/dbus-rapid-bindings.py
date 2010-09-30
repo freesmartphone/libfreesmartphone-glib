@@ -1262,15 +1262,15 @@ gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer user
         print >>srcfile, """
 gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer userdata)
 {
-    static gboolean signal_added = FALSE;
+    //static gboolean signal_added = FALSE;
 
     %s%s_%s_dbus_connect(%s);
 
-    if (!signal_added) {
+    //if (!signal_added) {
         dbus_g_proxy_add_signal(%s,
             "%s", %sG_TYPE_INVALID);
-        signal_added = TRUE;
-    }
+        //signal_added = TRUE;
+    //}
 
     gpointer* __data = g_new0(gpointer, 2);
     __data[0] = callback;
