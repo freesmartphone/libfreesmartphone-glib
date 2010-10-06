@@ -1060,6 +1060,11 @@ DBusGProxy* %s_%s_dbus_connect(%s)
                     complex_args_decl += "GPtrArray* __struct_%s = (dbus_error == NULL) ? %s : %s;\n" % (
                         arg['name'], arg_def, arg['error_value'])
 
+        if self.proxy_type == 'path':
+            proxy_free = 'g_object_unref(proxy);'
+        else:
+            proxy_free = ''
+
         print >>srcfile, """
 static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer userdata)
 {
@@ -1067,6 +1072,7 @@ static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer 
     callback_data_t *__data = (callback_data_t *)userdata;
     GError *error = NULL;
 
+    %s
     if (__data->callback != NULL) {
         if (dbus_error != NULL)
             error = dbus_handle_errors(dbus_error);
@@ -1085,7 +1091,7 @@ static void %s_%s_%s_callback(DBusGProxy *proxy, %sGError *dbus_error, gpointer 
     %s
 }
 """ % (self.function_prefix, self.methods_prefix, fmt_name,
-        fmt_out_args, complex_args_decl,
+        fmt_out_args, proxy_free, complex_args_decl,
         fmt_out_args_sp_impl, fmt_out_args_err_expl,
         #fmt_out_args_sp_expl,
         complex_args_extra, complex_args_free)
@@ -1246,6 +1252,9 @@ static void %s_%s_%s_handler(DBusGProxy *proxy,
             construct_args = ''
             construct_args_expl = ''
             proxy_connection = ''
+            signal_added_comment = ''
+            data_count = 2
+            data3 = ''
         elif self.proxy_type == 'path':
             construct_decl = 'DBusGProxy* %s = ' % (self.proxy_name)
             construct_args = 'const char* path, '
@@ -1253,6 +1262,9 @@ static void %s_%s_%s_handler(DBusGProxy *proxy,
             proxy_connection = '%s%s_%s_dbus_connect(%s);' % (
                 construct_decl, self.function_prefix, self.methods_prefix,
                 construct_args_expl)
+            signal_added_comment = '//'
+            data_count = 3
+            data3 = '__data[2] = %s;' % (self.proxy_name)
 
         print >>hdrfile, """
 gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer userdata);""" % (
@@ -1262,19 +1274,20 @@ gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer user
         print >>srcfile, """
 gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer userdata)
 {
-    //static gboolean signal_added = FALSE;
+    %sstatic gboolean signal_added = FALSE;
 
     %s%s_%s_dbus_connect(%s);
 
-    //if (!signal_added) {
+    %sif (!signal_added) {
         dbus_g_proxy_add_signal(%s,
             "%s", %sG_TYPE_INVALID);
-        //signal_added = TRUE;
-    //}
+        %ssignal_added = TRUE;
+    %s}
 
-    gpointer* __data = g_new0(gpointer, 2);
+    gpointer* __data = g_new0(gpointer, %d);
     __data[0] = callback;
     __data[1] = userdata;
+    %s
 
     dbus_g_proxy_connect_signal(%s,
             "%s", G_CALLBACK (%s_%s_%s_handler),
@@ -1284,35 +1297,42 @@ gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer user
     return __data;
 }""" % (self.function_prefix, self.methods_prefix,
         cname_from_dbus_name(c.get('name')), construct_args, fmt_args_sp_impl,
-        construct_decl, 
+        signal_added_comment, construct_decl, 
         self.function_prefix, self.methods_prefix, construct_args_expl,
-        self.proxy_name, c.get('name'),
-        g_types,
+        signal_added_comment, self.proxy_name, c.get('name'),
+        g_types, signal_added_comment, signal_added_comment,
+        data_count, data3,
         self.proxy_name, c.get('name'),
         self.function_prefix, self.methods_prefix,
         cname_from_dbus_name(c.get('name')), ifname)
 
         print >>hdrfile, """
-void %s_%s_%s_disconnect(%sgpointer callback_data);""" % (
+void %s_%s_%s_disconnect(gpointer callback_data);""" % (
         self.function_prefix, self.methods_prefix,
-        cname_from_dbus_name(c.get('name')), construct_args)
+        cname_from_dbus_name(c.get('name')))
+
+        proxy_free = ''
+        if self.proxy_type == 'path':
+            proxy_connection = 'DBusGProxy* %s = ((gpointer*)callback_data)[2];' % (self.proxy_name)
+            proxy_free = 'g_object_unref(%s);' % (self.proxy_name)
 
         print >>srcfile, """
-void %s_%s_%s_disconnect(%sgpointer callback_data)
+void %s_%s_%s_disconnect(gpointer callback_data)
 {
     %s
     dbus_g_proxy_disconnect_signal(%s,
             "Event", G_CALLBACK(%s_%s_%s_handler),
             callback_data);
 
+    %s
     g_free(callback_data);
     g_debug("unregistered callback %%p from %s", callback_data);
 }
 """ % (self.function_prefix, self.methods_prefix,
-        cname_from_dbus_name(c.get('name')), construct_args,
+        cname_from_dbus_name(c.get('name')),
         proxy_connection, self.proxy_name,
         self.function_prefix, self.methods_prefix,
-        cname_from_dbus_name(c.get('name')), ifname)
+        cname_from_dbus_name(c.get('name')), proxy_free, ifname)
 
     def write_signal(self, f, c, hdrfile, srcfile):
         # f: tag interfaccia
