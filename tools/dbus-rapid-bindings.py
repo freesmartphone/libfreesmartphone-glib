@@ -1321,7 +1321,7 @@ void %s_%s_%s_disconnect(gpointer callback_data)
 {
     %s
     dbus_g_proxy_disconnect_signal(%s,
-            "Event", G_CALLBACK(%s_%s_%s_handler),
+            "%s", G_CALLBACK(%s_%s_%s_handler),
             callback_data);
 
     %s
@@ -1330,7 +1330,7 @@ void %s_%s_%s_disconnect(gpointer callback_data)
 }
 """ % (self.function_prefix, self.methods_prefix,
         cname_from_dbus_name(c.get('name')),
-        proxy_connection, self.proxy_name,
+        proxy_connection, self.proxy_name, c.get('name'),
         self.function_prefix, self.methods_prefix,
         cname_from_dbus_name(c.get('name')), proxy_free, ifname)
 
