@@ -578,10 +578,10 @@ GError* dbus_handle_remote_error(GError* dbus_error)
             self.root = self.xmltree.parse(xmlfile)
             self.xmlfile = xmlfile
 
-            self.insert_error_code(srcfile, hdrfile,
-                self.root.getiterator('errordomain'))
+            count = self.insert_error_code(srcfile, hdrfile,
+                self.root.getiterator('{%s}errordomain' % (fso_namespace)))
 
-            if first_file:
+            if first_file and count > 0:
                 print >>srcfile, """    else"""
             else:
                 first_file = True
@@ -659,6 +659,8 @@ GError* dbus_handle_remote_error(GError* dbus_error)
 
             enum += "};\n"
             print >>hdrfile, enum
+
+        return len(fiter)
 
     def generate_dbus_stub(self, f):
         # filtra i nostri tag

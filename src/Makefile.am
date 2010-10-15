@@ -58,10 +58,7 @@ DBUS_ERRORS_SOURCES = \
 
 $(DBUS_ERRORS_SOURCES): Makefile
 	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib errors org.freesmartphone \
-	$(xmldir)/org.freesmartphone.Error.xml \
-	$(xmldir)/org.freesmartphone.GSM.Error.xml \
-	$(xmldir)/org.freesmartphone.Usage.Error.xml \
-	$(xmldir)/org.freesmartphone.Device.Error.xml
+	$(wildcard $(xmldir)/*.xml)
 
 
 libfreesmartphone_glib_HEADERS = \

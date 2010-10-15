@@ -97,7 +97,7 @@
       <arg xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" type="s" name="action" fso:type="org.freesmartphone.Usage.SystemAction"/>
     </signal>
   </interface>
-  <fso:errordomain xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" name="org.freesmartphone.Usage" fso:no-container="true">
+  <fso:errordomain xmlns:fso="http://www.freesmartphone.org/schemas/DBusSpecExtension" name="org.freesmartphone.Usage" fso:no-container="true" prefix="USAGE">
     <error name="PolicyUnknown"/>
     <error name="PolicyDisabled"/>
     <error name="ResourceUnknown"/>
