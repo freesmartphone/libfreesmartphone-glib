@@ -12,28 +12,22 @@ noinst_LTLIBRARIES = libousaged.la
 BUILT_SOURCES = \
 	$(DBUS_OUSAGED_SOURCES) \
 	dbus/usage.xml \
-	dbus/usage.h \
-	dbus/notifications.xml \
-	dbus/notifications.h
+	dbus/usage.h
 
 DBUS_OUSAGED_SOURCES = \
 	usage.c \
 	usage.h \
-	notifications.c \
-	notifications.h \
 	dbus.h
 
 $(BUILT_SOURCES): Makefile
 	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib ousaged org.freesmartphone.ousaged \
-	$(xmldir)/org.freesmartphone.Usage.xml \
-	$(xmldir)/org.freesmartphone.Notifications.xml
+	$(xmldir)/org.freesmartphone.Usage.xml
 
 libousaged_la_SOURCES = \
 	$(DBUS_OUSAGED_SOURCES)
 
 libfreesmartphone_glib_HEADERS = \
 	usage.h \
-	notifications.h \
 	dbus.h
 
 libfreesmartphone_glibdir = $(includedir)/freesmartphone-glib/ousaged
