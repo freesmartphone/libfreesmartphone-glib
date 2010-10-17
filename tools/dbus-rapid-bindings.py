@@ -1011,6 +1011,32 @@ DBusGProxy* %s_%s_dbus_connect(%s)
 }
 """ % (self.function_prefix.upper(), path_def, f.get('name'), self.proxy_name)
 
+        # metodo per bus_name e path_name custom
+        params = "const char* bus_name, const char* path"
+
+        print >>hdrfile, """
+DBusGProxy* %s_%s_dbus_connect_custom(%s);""" % (self.function_prefix,
+            self.methods_prefix, params)
+
+        print >>srcfile, """
+DBusGProxy* %s_%s_dbus_connect_custom(%s)
+{
+""" % (self.function_prefix, self.methods_prefix, params)
+
+        if proxy_type == 'path':
+            print >>srcfile, """
+    DBusGProxy *%s =""" % (self.proxy_name)
+
+        elif proxy_type == 'static':
+            print >>srcfile, """
+    if (%s == NULL) %s = """ % (self.proxy_name, self.proxy_name)
+
+        print >>srcfile, """dbus_connect_to_interface(bus_name, path, "%s");
+
+    return %s;
+}
+""" % (f.get('name'), self.proxy_name)
+
         # servira' per la costruzione dei metodi
         return proxy_type
 
