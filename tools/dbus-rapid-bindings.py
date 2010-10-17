@@ -801,11 +801,15 @@ static void %s_struct_%s_convert(gpointer data, gpointer userdata)
             name = is_fso(c.tag)
             if not name: continue
 
-            name = '    %s_%s' % ( enum_defname, c.get('name').replace('-', '_').upper())
+            name = '    %s_%s' % (enum_defname, c.get('name').replace('-', '_').upper())
             enum_list.append(name)
             enum_values[name] = c.get('value')
 
-        enum_hdr = """
+        handler_args = dbus_type_mapping[conv_type]
+
+        if conv_type == 's':
+            condition = '!strcmp(value, "%s")'
+            enum_hdr = """
 typedef enum {
 %s = 0,
 %s
@@ -813,16 +817,32 @@ typedef enum {
 """ % (enum_list[0], ',\n'.join(enum_list[1:]) if len(enum_list) > 1 else '',
         enum_name)
 
-        handler_args = dbus_type_mapping[conv_type]
-
-        enum_hdr += """
+            enum_hdr += """
 int %s_handle_%s(const %s value);
 const %s %s_handle_%s_reverse(int value);
 """ % (self.function_prefix, enum_defname.lower(), handler_args,
         handler_args, self.function_prefix, enum_defname.lower())
 
-        if conv_type == 's':
-            condition = '!strcmp(value, "%s")'
+        elif conv_type == 'i':
+            # non convertire interi :D
+            enum_list = map(lambda n: '%s = %s' % (n, enum_values[n]), enum_list)
+
+            enum_hdr = """
+typedef enum {
+%s
+} %s;
+""" % (',\n'.join(enum_list) if len(enum_list) > 0 else '', enum_name)
+
+            return {
+                'name' : enum_name,
+                'list' : enum_list,
+                'in_type' : (conv_type, handler_args),
+                'out_type' : ('i', 'gint'),
+                'header' : enum_hdr,
+                'source' : '',
+                'interface' : f.get('interface')
+            }
+
         else:
             raise RuntimeError('Unknown converter argument type \'%s\'' % (conv_type))
 
