@@ -56,6 +56,8 @@ dbus_type_mapping = {
     'u' : 'guint',
     # byte unsigned
     'y' : 'guint8',
+    # double
+    'd' : 'gdouble',
     # variant (GValue)
     'v' : 'GValue',
     # vettore: mappa o array
@@ -76,6 +78,8 @@ dbus_type_marshal = {
     'i' : 'int',
     # intero unsigned
     'u' : 'uint',
+    # double
+    'd' : 'double',
     # byte unsigned
     'y' : 'byte',
     # variant
@@ -98,6 +102,8 @@ dbus_marshal_signatures = {
     'i' : 'INT',
     # intero unsigned
     'u' : 'UINT',
+    # double
+    'd' : 'DOUBLE',
     # byte unsigned
     'y' : 'UCHAR',
     # variant
@@ -117,6 +123,8 @@ dbus_errors_default = {
     'i' : '0',
     # intero unsigned
     'u' : '0',
+    # double
+    'd' : '0.0',
     # byte unsigned
     'y' : '0',
     # variant
