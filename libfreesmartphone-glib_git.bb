@@ -1,7 +1,7 @@
 DESCRIPTION = "freesmartphone.org API GLib wrapper (auto-generated)"
 LICENSE = "LGPL"
 SECTION = "devel"
-DEPENDS = "dbus-glib"
+DEPENDS = "dbus-glib fso-specs"
 SRCREV = "FIXME"
 PV = "0.2+gitr${SRCPV}"
 PE = "1"
