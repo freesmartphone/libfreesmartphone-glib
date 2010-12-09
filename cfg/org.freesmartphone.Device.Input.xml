@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Device.Input">
+    <proxy type="static" path="/org/freesmartphone/Device/Input"/>
+    <enumeration name="org.freesmartphone.Device.InputState"/>
+  </interface>
+</node>

@@ -10,10 +10,11 @@ AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
 	      -DPKGDATADIR=\"$(pkgdatadir)\" \
 	      -DG_LOG_DOMAIN=\"libfreesmartphone-glib\"
 
-AM_CFLAGS = -Wall -Wextra -Werror @DBUS_CFLAGS@
-AM_LDFLAGS = @DBUS_LIBS@
+AM_CFLAGS = -Wall -Wextra -Werror @DEPS_CFLAGS@
+AM_LDFLAGS = @DEPS_LIBS@
 
-xmldir = $(top_srcdir)/xml
+xmldir = @FSO_SPECS_DIR@
+cfgdir = $(top_srcdir)/cfg
 
 lib_LTLIBRARIES = libfreesmartphone-glib.la
 
@@ -57,7 +58,7 @@ DBUS_ERRORS_SOURCES = \
 	errors.h
 
 $(DBUS_ERRORS_SOURCES): Makefile
-	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib errors org.freesmartphone \
+	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib errors org.freesmartphone "$(cfgdir)" \
 	$(wildcard $(xmldir)/*.xml)
 
 

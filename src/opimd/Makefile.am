@@ -2,10 +2,11 @@ AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
 	      -DPKGDATADIR=\"$(pkgdatadir)\" \
 	      -DG_LOG_DOMAIN=\"libfreesmartphone-glib\"
 
-AM_CFLAGS = -Wall -Wextra -Werror @DBUS_CFLAGS@ -I..
-AM_LDFLAGS = @DBUS_LIBS@
+AM_CFLAGS = -Wall -Wextra -Werror @DEPS_CFLAGS@ -I..
+AM_LDFLAGS = @DEPS_LIBS@
 
-xmldir = $(top_srcdir)/xml
+xmldir = @FSO_SPECS_DIR@
+cfgdir = $(top_srcdir)/cfg
 
 noinst_LTLIBRARIES = libopimd.la
 
@@ -60,18 +61,18 @@ DBUS_OPIMD_SOURCES = \
 	messages.h
 
 $(BUILT_SOURCES): Makefile
-	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib opimd org.freesmartphone.opimd \
-	$(xmldir)/org.freesmartphone.PIM.Fields.xml \
-	$(xmldir)/org.freesmartphone.PIM.CallQuery.xml \
-	$(xmldir)/org.freesmartphone.PIM.Call.xml \
-	$(xmldir)/org.freesmartphone.PIM.Calls.xml \
-	$(xmldir)/org.freesmartphone.PIM.ContactQuery.xml \
-	$(xmldir)/org.freesmartphone.PIM.Contact.xml \
-	$(xmldir)/org.freesmartphone.PIM.Contacts.xml \
-	$(xmldir)/org.freesmartphone.PIM.MessageFolder.xml \
-	$(xmldir)/org.freesmartphone.PIM.MessageQuery.xml \
-	$(xmldir)/org.freesmartphone.PIM.Messages.xml \
-	$(xmldir)/org.freesmartphone.PIM.Message.xml
+	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib opimd org.freesmartphone.opimd "$(cfgdir)" \
+	"$(xmldir)/org.freesmartphone.PIM.Fields.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.CallQuery.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.Call.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.Calls.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.ContactQuery.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.Contact.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.Contacts.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.MessageFolder.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.MessageQuery.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.Messages.xml" \
+	"$(xmldir)/org.freesmartphone.PIM.Message.xml"
 
 libopimd_la_SOURCES = \
 	$(DBUS_OPIMD_SOURCES)

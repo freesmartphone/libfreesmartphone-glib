@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.GSM.SIM">
+    <proxy type="static" path="/org/freesmartphone/GSM/Device"/>
+    <enumeration name="org.freesmartphone.GSM.SIMAuthStatus"/>
+    <struct name="org.freesmartphone.GSM.SIMEntry"/>
+    <struct name="org.freesmartphone.GSM.SIMHomeZone"/>
+    <struct name="org.freesmartphone.GSM.SIMMessage"/>
+  </interface>
+</node>

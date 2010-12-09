@@ -2,10 +2,11 @@ AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
 	      -DPKGDATADIR=\"$(pkgdatadir)\" \
 	      -DG_LOG_DOMAIN=\"libfreesmartphone-glib\"
 
-AM_CFLAGS = -Wall -Wextra -Werror @DBUS_CFLAGS@ -I..
-AM_LDFLAGS = @DBUS_LIBS@
+AM_CFLAGS = -Wall -Wextra -Werror @DEPS_CFLAGS@ -I..
+AM_LDFLAGS = @DEPS_LIBS@
 
-xmldir = $(top_srcdir)/xml
+xmldir = @FSO_SPECS_DIR@
+cfgdir = $(top_srcdir)/cfg
 
 noinst_LTLIBRARIES = libodeviced.la
 
@@ -48,15 +49,15 @@ DBUS_ODEVICED_SOURCES = \
 	dbus.h
 
 $(BUILT_SOURCES): Makefile
-	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib odeviced org.freesmartphone.odeviced \
-	$(xmldir)/org.freesmartphone.Device.Display.xml \
-	$(xmldir)/org.freesmartphone.Device.IdleNotifier.xml \
-	$(xmldir)/org.freesmartphone.Device.Input.xml \
-	$(xmldir)/org.freesmartphone.Device.Vibrator.xml \
-	$(xmldir)/org.freesmartphone.Device.LED.xml \
-	$(xmldir)/org.freesmartphone.Device.Orientation.xml \
-	$(xmldir)/org.freesmartphone.Device.PowerSupply.xml \
-	$(xmldir)/org.freesmartphone.Device.Audio.xml
+	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib odeviced org.freesmartphone.odeviced "$(cfgdir)" \
+	"$(xmldir)/org.freesmartphone.Device.Display.xml" \
+	"$(xmldir)/org.freesmartphone.Device.IdleNotifier.xml" \
+	"$(xmldir)/org.freesmartphone.Device.Input.xml" \
+	"$(xmldir)/org.freesmartphone.Device.Vibrator.xml" \
+	"$(xmldir)/org.freesmartphone.Device.LED.xml" \
+	"$(xmldir)/org.freesmartphone.Device.Orientation.xml" \
+	"$(xmldir)/org.freesmartphone.Device.PowerSupply.xml" \
+	"$(xmldir)/org.freesmartphone.Device.Audio.xml"
 
 libodeviced_la_SOURCES = \
 	$(DBUS_ODEVICED_SOURCES)

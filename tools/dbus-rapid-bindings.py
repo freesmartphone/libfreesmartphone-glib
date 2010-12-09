@@ -260,9 +260,13 @@ class DBusCodeGen:
         self.filename_prefix = argv[3]
         self.function_prefix = argv[4]
         self.bus_name = argv[5]
-        self.xmlfiles = argv[6:]
-        self.xmltree = ElementTree()
+        if self.function_prefix != 'common':
+            self.cfg_dir = argv[6]
+            self.xmlfiles = argv[7:]
+            self.xmltree = ElementTree()
         self.uscore_fprefix = self.filename_prefix.replace('-', '_')
+        self.cfg = {}
+        self.glob_cfg = { 'enums' : {}, 'structs' : {} }
 
     def preformat_arguments(self, args, use_special = False, in_args = False, error_usage = False):
         '''Formatta una lista di argomenti.
@@ -612,7 +616,11 @@ GError* dbus_handle_remote_error(GError* dbus_error)
 
         for f in fiter:
             name = f.get('name')
-            def_prefix = f.get('prefix')
+            try:
+                def_prefix = self.cfg[name].get('prefix')
+            except:
+                def_prefix = f.get('prefix')
+
             if def_prefix:
                 def_prefix += "_"
             else:
@@ -692,21 +700,81 @@ GError* dbus_handle_remote_error(GError* dbus_error)
         os.system("dbus-binding-tool --mode=glib-client --output=%s %s" % (
             dbus_fname, dbus_xmlfile))
 
+    def read_errors_config(self):
+        '''Legge la configurazione degli errori.'''
+        for xmlfile in self.xmlfiles:
+            try:
+                cfg_file = os.path.join(self.cfg_dir, os.path.basename(xmlfile))
+                #print "Parsing %s" % cfg_file
+                cfg_tree = ElementTree()
+                cfg_root = cfg_tree.parse(cfg_file)
+
+                nodes = cfg_root.getiterator('errordomain')
+                for f in nodes:
+                    print "Found configuration for errordomain %s" % (f.get('name'))
+                    self.cfg[f.get('name')] = f
+            except Exception, e:
+                print e
+
+    def read_config(self):
+        '''Legge la configurazione.'''
+        cfg_file = os.path.join(self.cfg_dir, os.path.basename(self.xmlfile))
+        cfg_tree = ElementTree()
+        cfg_root = cfg_tree.parse(cfg_file)
+
+        nodes = cfg_root.getiterator('interface')
+        for iface in nodes:
+            fname = iface.get('name')
+            self.cfg[fname] = {
+                'enums' : {},
+                'structs' : {},
+                'includes' : []
+            }
+
+            for elem in iface.getchildren():
+                if elem.tag == 'proxy':
+                    self.cfg[fname]['proxy'] = elem
+                elif elem.tag == 'include':
+                    for i in elem.getchildren():
+                        if i.tag == 'file':
+                            self.cfg[fname]['includes'].append(i.get('name'))
+                elif elem.tag == 'enumeration':
+                    print "Found enumeration: %s" % (elem.get('name'))
+                    self.cfg[fname]['enums'][elem.get('name')] = elem
+                    self.glob_cfg['enums'][elem.get('name')] = fname
+                elif elem.tag == 'struct':
+                    print "Found struct: %s" % (elem.get('name'))
+                    self.cfg[fname]['structs'][elem.get('name')] = elem
+                    self.glob_cfg['structs'][elem.get('name')] = fname
+
     def prepare_converters(self):
         '''Prepara i convertitori per poter generare il codice in seguito.'''
+
         nodes = self.root.getiterator('node')
 
         for f in nodes[0].getchildren():
+            name = f.get('name')
+
             if f.tag == '{' + fso_namespace + '}enumeration':
+                try:
+                    cfg = self.glob_cfg['enums'][name]
+                except:
+                    raise RuntimeError('Converter configuration not found: %s' % (name))
+
                 # definisci enumeration e funzione di conversione
-                self.converters[f.get('name')] = self.converter_enumeration(f)
+                self.converters[name] = self.converter_enumeration(f, cfg)
 
             elif f.tag == '{' + fso_namespace + '}struct':
+                try:
+                    cfg = self.glob_cfg['structs'][name]
+                except:
+                    raise RuntimeError('Converter configuration not found: %s' % (name))
+
                 # definisci struct e funzione di conversione
                 #print "Adding converter for", f.get('name')
-                self.converters[f.get('name')] = self.converter_struct(f)
+                self.converters[name] = self.converter_struct(f, cfg)
 
-    def converter_struct(self, f):
+    def converter_struct(self, f, interface):
         struct_name = f.get('name').rsplit('.', 1)[-1]
         struct_defname = cdefname_from_dbus_name(struct_name)
         struct_list = []
@@ -796,10 +864,10 @@ static void %s_struct_%s_convert(gpointer data, gpointer userdata)
             'out_type' : ('a', 'GPtrArray*'),
             'header' : struct_hdr,
             'source' : struct_src,
-            'interface' : f.get('interface')
+            'interface' : interface
         }
 
-    def converter_enumeration(self, f):
+    def converter_enumeration(self, f, interface):
         enum_name = f.get('name').rsplit('.', 1)[-1]
         enum_defname = cdefname_from_dbus_name(enum_name)
         enum_list = []
@@ -848,7 +916,7 @@ typedef enum {
                 'out_type' : ('i', 'gint'),
                 'header' : enum_hdr,
                 'source' : '',
-                'interface' : f.get('interface')
+                'interface' : interface
             }
 
         else:
@@ -902,7 +970,7 @@ const %s %s_handle_%s_reverse(int value)
             'out_type' : ('i', 'gint'),
             'header' : enum_hdr,
             'source' : enum_src,
-            'interface' : f.get('interface')
+            'interface' : interface
         }
 
 
@@ -946,9 +1014,15 @@ G_BEGIN_DECLS
         srcfile = open(os.path.join(self.basedir, srcfname), 'w')
 
         # intestazione sorgenti
-        self.write_source_header(srcfile)
+        self.write_source_header(srcfile, fname)
 
         c = f.find('proxy')
+        if c is None:
+            try:
+                c = self.cfg[fname]['proxy']
+            except:
+                c = None
+
         if c is None:
             raise RuntimeError('Proxy definition tag not found.')
 
@@ -981,7 +1055,12 @@ G_END_DECLS
         hdrfile.close()
         srcfile.close()
 
-    def write_source_header(self, srcfile):
+    def write_source_header(self, srcfile, fname):
+        # extra includes
+        incl_extra = ''
+        for inc in self.cfg[fname]['includes']:
+            incl_extra += '#include "%s"\n' % inc
+
         print >>srcfile, """
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-bindings.h>
@@ -990,10 +1069,11 @@ G_END_DECLS
 #include "%s"
 #include "dbus-types.h"
 #include "dbus/%s.h"
+%s
 """ % (self.get_filename(self.function_prefix, self.methods_prefix, '.h'),
         self.get_filename(self.function_prefix, 'dbus', '.h'),
         self.get_filename('', 'common', '.h'),
-        self.methods_prefix)
+        self.methods_prefix, incl_extra)
 
     def write_proxy_constructor(self, f, c, hdrfile, srcfile):
         proxy_type = c.get('type')
@@ -1353,7 +1433,7 @@ gpointer %s_%s_%s_connect(%svoid (*callback)(gpointer userdata%s), gpointer user
     return __data;
 }""" % (self.function_prefix, self.methods_prefix,
         cname_from_dbus_name(c.get('name')), construct_args, fmt_args_sp_impl,
-        signal_added_comment, construct_decl, 
+        signal_added_comment, construct_decl,
         self.function_prefix, self.methods_prefix, construct_args_expl,
         signal_added_comment, self.proxy_name, c.get('name'),
         g_types, signal_added_comment, signal_added_comment,
@@ -1403,6 +1483,7 @@ void %s_%s_%s_disconnect(gpointer callback_data)
         except: print "Source directory already exists, ignoring"
 
         if self.function_prefix == 'errors':
+            self.read_errors_config()
             self.write_errors_file(self.xmlfiles)
 
         elif self.function_prefix == 'common':
@@ -1420,6 +1501,7 @@ void %s_%s_%s_disconnect(gpointer callback_data)
                 self.root = self.xmltree.parse(xmlfile)
                 self.xmlfile = xmlfile
 
+                self.read_config()
                 self.prepare_converters()
                 map(self.write_interface_file, self.root.getiterator('interface'))
 

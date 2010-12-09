@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.PIM.Contacts">
+    <proxy type="static" path="/org/freesmartphone/PIM/Contacts"/>
+  </interface>
+</node>
+

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Device.PowerSupply">
+    <proxy type="static" path="/org/freesmartphone/Device/PowerSupply"/>
+    <enumeration name="org.freesmartphone.Device.PowerStatus"/>
+  </interface>
+</node>

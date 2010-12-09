@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Device.Audio">
+    <proxy type="static" path="/org/freesmartphone/Device/Audio"/>
+    <enumeration name="org.freesmartphone.Device.SoundState"/>
+  </interface>
+  <errordomain name="org.freesmartphone.Device.Audio" prefix="DEVICE_AUDIO"/>
+</node>

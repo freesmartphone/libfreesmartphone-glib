@@ -2,10 +2,11 @@ AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
 	      -DPKGDATADIR=\"$(pkgdatadir)\" \
 	      -DG_LOG_DOMAIN=\"libfreesmartphone-glib\"
 
-AM_CFLAGS = -Wall -Wextra -Werror @DBUS_CFLAGS@ -I..
-AM_LDFLAGS = @DBUS_LIBS@
+AM_CFLAGS = -Wall -Wextra -Werror @DEPS_CFLAGS@ -I..
+AM_LDFLAGS = @DEPS_LIBS@
 
-xmldir = $(top_srcdir)/xml
+xmldir = @FSO_SPECS_DIR@
+cfgdir = $(top_srcdir)/cfg
 
 noinst_LTLIBRARIES = libogsmd.la
 
@@ -36,12 +37,12 @@ DBUS_OGSMD_SOURCES = \
 	sms.h
 
 $(BUILT_SOURCES): Makefile
-	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib ogsmd org.freesmartphone.ogsmd \
-	$(xmldir)/org.freesmartphone.GSM.Device.xml \
-	$(xmldir)/org.freesmartphone.GSM.Call.xml \
-	$(xmldir)/org.freesmartphone.GSM.Network.xml \
-	$(xmldir)/org.freesmartphone.GSM.SIM.xml \
-	$(xmldir)/org.freesmartphone.GSM.SMS.xml
+	$(top_srcdir)/tools/dbus-rapid-bindings.py . minimal freesmartphone-glib ogsmd org.freesmartphone.ogsmd "$(cfgdir)" \
+	"$(xmldir)/org.freesmartphone.GSM.Device.xml" \
+	"$(xmldir)/org.freesmartphone.GSM.Call.xml" \
+	"$(xmldir)/org.freesmartphone.GSM.Network.xml" \
+	"$(xmldir)/org.freesmartphone.GSM.SIM.xml" \
+	"$(xmldir)/org.freesmartphone.GSM.SMS.xml"
 
 libogsmd_la_SOURCES = \
 	$(DBUS_OGSMD_SOURCES)

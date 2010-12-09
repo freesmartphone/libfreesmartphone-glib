@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Resource">
+    <proxy type="path"/>
+  </interface>
+  <errordomain name="org.freesmartphone.Resource" prefix="RESOURCE"/>
+</node>

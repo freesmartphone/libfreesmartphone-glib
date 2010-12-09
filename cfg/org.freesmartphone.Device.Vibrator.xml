@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Device.Vibrator">
+    <proxy type="static" path="/org/freesmartphone/Device/Vibrator/0"/>
+  </interface>
+</node>

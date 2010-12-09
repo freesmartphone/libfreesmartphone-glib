@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.GSM.Call">
+    <proxy type="static" path="/org/freesmartphone/GSM/Device"/>
+    <enumeration name="org.freesmartphone.GSM.CallStatus"/>
+    <struct name="org.freesmartphone.GSM.CallDetail"/>
+  </interface>
+</node>

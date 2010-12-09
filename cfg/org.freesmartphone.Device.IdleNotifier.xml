@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Device.IdleNotifier">
+    <proxy type="static" path="/org/freesmartphone/Device/IdleNotifier/0"/>
+    <enumeration name="org.freesmartphone.Device.IdleState"/>
+  </interface>
+</node>

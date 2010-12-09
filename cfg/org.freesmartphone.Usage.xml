@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.Usage">
+    <proxy type="static" path="/org/freesmartphone/Usage"/>
+    <enumeration name="org.freesmartphone.Usage.ResourcePolicy"/>
+    <enumeration name="org.freesmartphone.Usage.SystemAction"/>
+  </interface>
+  <errordomain name="org.freesmartphone.Usage" prefix="USAGE"/>
+</node>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+  <interface name="org.freesmartphone.GSM.Network">
+    <proxy type="static" path="/org/freesmartphone/GSM/Device"/>
+    <struct name="org.freesmartphone.GSM.NetworkProvider"/>
+    <enumeration name="org.freesmartphone.GSM.UssdStatus"/>
+    <enumeration name="org.freesmartphone.GSM.CipherStatus"/>
+    <enumeration name="org.freesmartphone.GSM.CallingIdentificationStatus"/>
+  </interface>
+</node>
