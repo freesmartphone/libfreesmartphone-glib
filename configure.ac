@@ -46,5 +46,6 @@ src/ogsmd/Makefile
 src/ousaged/Makefile
 src/opimd/Makefile
 src/odeviced/Makefile
+src/gypsy/Makefile
 libfreesmartphone-glib.pc
 ])
