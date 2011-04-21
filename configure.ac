@@ -1,4 +1,4 @@
-AC_INIT([libfreesmartphone-glib], [2011.01.13.1], [daniele.athome@gmail.com], [libfreesmartphone-glib])
+AC_INIT([libfreesmartphone-glib], [2011.04.15.1], [daniele.athome@gmail.com], [libfreesmartphone-glib])
 AC_CONFIG_SRCDIR(Makefile.am)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
