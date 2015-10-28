@@ -1,11 +1,10 @@
-SUBDIRS = ogsmd ousaged opimd odeviced gypsy
+SUBDIRS = ogsmd ousaged opimd odeviced
 
 dbus_archives = \
 	ogsmd/libogsmd.la \
 	ousaged/libousaged.la \
 	opimd/libopimd.la \
-	odeviced/libodeviced.la \
-	gypsy/libgypsy.la
+	odeviced/libodeviced.la
 
 AM_CPPFLAGS = -DDATADIR=\"$(datadir)\" \
 	      -DPKGDATADIR=\"$(pkgdatadir)\" \
